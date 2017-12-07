@@ -1,1 +1,2 @@
-Advent of Code for 2017 by Matthew Pogue
+# Advent of Code 2017
+Author: Matthew Pogue
