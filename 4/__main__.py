@@ -1,4 +1,4 @@
-# Day 3 part 2 of Advent of Code
+# Day 4 of Advent of Code
 # Author: Matthew Pogue
 # Date: December 7th, 2017
 
