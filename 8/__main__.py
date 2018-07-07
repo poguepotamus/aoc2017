@@ -1,48 +1,110 @@
+
 # Day 8 part 1 of Advent of Code
 # Author: Matthew Pogue
 # Date: December 22nd, 2017
 
-import fileinput
+### LIBRARIES AND FILES #######################################################
+## LIBRARIES ##########################
+import os
 
-### DEBUG VARIABLES ###########################################################
-DEBUG = False
-DBUG = "# = Starting Debugging:\n#   -\n"
+## FILES ##############################
 
-### GENERAL FUNCTIONS #########################################################
-def getFileInfo():
-    file = []
-    for line in fileinput.input(): file.append(line)
-    fileinput.close()
-    return file
+print('Libraries have been imported')
 
-def check(reg, op, num):
-    if op == '==':
-        return True if MEM[reg] == num else False
-    elif op == '!=':
-        return True if MEM[reg] != num else False
-    elif op == '>':
-        return True if MEM[reg] > num else False
-    elif op == '>=':
-        return True if MEM[reg] >= num else False
-    elif op == '<':
-        return True if MEM[reg] < num else False
-    elif op == '<=':
-        return True if MEM[reg] <= num else False
+class JumpHelper:
+    def __init__(self, filePath):
+        # Creating useful object variables
+        self.fileData = self.getFileInfo(filePath)
+        self.answer = ''
+        self.memory = {}
+        self.memoryMax = None
 
-### GLOBAL VARIABLES ##########################################################
-FILE = getFileInfo()
-ANSWER = ""
-MEM = {}
+    def process(self):
+        for line in self.fileData:
+            print(f'Evaluating {line}')
 
-### MAIN LINE #################################################################
-for line in FILE:
-    linx = line.split()
-    MEM[linx[0]] = 0 if linx[0] not in MEM else MEM[linx[0]] # Adds new register if it doesn't exist and sets register to 0
-    MEM[linx[0]] += linx[2] * (1 if linx[1] == 'inc' else -1) * (1 if check(linx[4], linx[5], int(linx[6])) else 0)
+            # Splitting the line by spaces and placing them in an array
+            piece = line.split()
 
-maxValue = int(None)
-for key, value in MEM:
-    if value > maxValue
+            # Checking the if statement
+            if self.checkStatement( *piece[-3:] ):
+                self.alterRegister( *piece[:3] )
 
-### STANDARD OUT ##############################################################
-print( ( ( DBUG + "#   -\n# = End of Debugging:\n\n" ) if DEBUG else '' ) + "========================\n  ANSWER = " + str(ANSWER) + "\n========================" + ( "\n" if DEBUG else '' ) )
+    def getAnswer(self):
+        # Creating a answer spot for the maximum value
+        maxValue = None
+        maxReg = None
+        print(f'Current registers')
+        for key, value in self.memory.items():
+            print(f'    {key}: {value}')
+            if maxValue is None:
+                maxValue = int(value)
+                maxReg = key
+            elif int(value) > maxValue:
+                maxValue = value
+                maxReg = key
+
+        ### STANDARD OUT ##############################################################
+        print(f'Register with highest value:')
+        print(f'    {maxReg}: {maxValue}')
+        print(f'    And the highest number EVER was: {self.memoryMax}')
+
+    ### GENERAL FUNCTIONS #########################################################
+    def getFileInfo(self, filePath):
+        # Collecting the file information in variable fileData
+        with open(filePath) as file:
+            fileData = file.read().split('\n')
+
+        return fileData
+
+    def checkStatement(self, reg, op, num):
+        # Creating the register if it doesn't exist
+        self.touchReg(reg)
+        num = int(num)
+
+        # Checking each of the operators, then returning the answer of an if
+        # statement depending on if its correct
+        if op == '==':
+            return True if self.memory[reg] == num else False
+        elif op == '!=':
+            return True if self.memory[reg] != num else False
+        elif op == '>':
+            return True if self.memory[reg] > num else False
+        elif op == '>=':
+            return True if self.memory[reg] >= num else False
+        elif op == '<':
+            return True if self.memory[reg] < num else False
+        elif op == '<=':
+            return True if self.memory[reg] <= num else False
+        else:
+            raise Error('Unknown operator {op} in checkStatement(reg, op, num)')
+
+    def touchReg(self, register):
+        # CHecking to see if register exists in virtual memory
+        if register not in self.memory.keys():
+            # If not, then we initialize it here
+            self.memory[register] = 0
+
+    def alterRegister(self, reg, op, num):
+        # Creating a register if it doesn't exist
+        self.touchReg(reg)
+        num = int(num)
+
+        if self.memoryMax is None:
+            self.memoryMax = self.memory[reg]
+        elif self.memoryMax < self.memory[reg]:
+            self.memoryMax = self.memory[reg]
+
+        # Checking each operators, then altering the register
+        if op == 'inc':
+            self.memory[reg] += num
+        elif op == 'dec':
+            self.memory[reg] -= num
+        else:
+            raise Error('Unknown operator {op} in alterRegister(reg, op, num)')
+
+        print(f'    {reg} = {self.memory[reg]}')
+
+jumpHelper = JumpHelper('8/input.txt')
+jumpHelper.process()
+jumpHelper.getAnswer()
